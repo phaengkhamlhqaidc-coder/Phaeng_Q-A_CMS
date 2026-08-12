@@ -10,7 +10,7 @@ There is no build, no test suite, no dependency manifest. Verification is done b
 
 | File | Role |
 |---|---|
-| `cms-qa.html` | The deliverable — self-contained, ~616 KB, no external assets |
+| `cms-qa.html` | The deliverable — self-contained, ~640 KB, no external assets |
 | `CMS_Commercial_Bank_API_Manual.html` | **Authoritative source** for anything technical. Linked from the sidebar |
 | `Exim_Accounts_TEMPLATE.xlsx` | Intake template (step 2). Linked + rendered in panel B |
 | `business-template-exporter.xlsx` | Cleaned template (step 3). Linked + rendered in panel C |
@@ -120,9 +120,12 @@ Because the page is **paged**, a reader can enter at any panel — so "explain o
 
 ## Flow diagrams
 
-Five panels open with a `<figure class="flow">` holding a hand-authored inline
-SVG: `overview` (the journey), `c` (cleaning run → two files → TIN loop), `e`
-(failure triage), `f` (Track Transaction decision), `acdd` (import stages).
+**17 diagrams, in two kinds.** Five sit at the top of a panel and map a chain
+that spans several answers: `overview` (the journey), `c` (cleaning run → two
+files → TIN loop), `e` (failure triage), `f` (Track Transaction decision),
+`acdd` (import stages). Twelve more sit **inside a single answer**, as the last
+child of that answer’s `.abody` — they take `grid-column: 1 / -1` so one figure
+sits under both language columns instead of being duplicated per language.
 
 They sit at the **top** of the panel, before the Q&A list, because the thing they
 fix is cross-answer: Track Transaction's logic is spread over six branch Q&As and
@@ -168,7 +171,7 @@ Default is `both`; the answer body splits into two columns above 66rem.
 
 ## Lao typography
 
-`Noto Sans Lao` v2.003 (variable, weight 100–900, width 62.5–100%) is embedded as a base64 `data:` URI — 230 KB of the file's 616 KB. Required, not preference: the CSP blocks font CDNs and a linked webfont would silently fall back.
+`Noto Sans Lao` v2.003 (variable, weight 100–900, width 62.5–100%) is embedded as a base64 `data:` URI — 230 KB of the file's 640 KB. Required, not preference: the CSP blocks font CDNs and a linked webfont would silently fall back.
 
 Source: `https://raw.githubusercontent.com/google/fonts/main/ofl/notosanslao/NotoSansLao%5Bwdth,wght%5D.ttf`. On this machine `curl` needs `--ssl-no-revoke` (the TLS revocation server is unreachable). To re-embed, keep a `__LAO_FONT_B64__` placeholder in the `src:` line and substitute with Python `base64.b64encode` — never paste the blob by hand.
 
