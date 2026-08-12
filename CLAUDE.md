@@ -197,7 +197,7 @@ There is no test runner; use a Python assertion script over the HTML. Every pass
 - Exactly one `.panel.active`
 - 42 regime-code chips; 6 ACDD sample rows; 11 `.abbrbar` strips (one per content panel)
 - `.tech` block count is even (en/lo pairs)
-- No credentials or IPs: `Admin@bol|BolCb#|172\.16\.10\.70`
+- No credentials or internal addresses. Scan for private-range IPs with `\b(?:10|127|192\.168|172\.(?:1[6-9]|2\d|3[01]))\.\d{1,3}\.\d{1,3}\b`, and for the UAT panel passwords — **do not paste the literal passwords into this file or any tracked file**; they live only in the operator's own notes. A generic sweep that catches most cases: `(?i)(pass(word)?|pwd|token|secret|api[_-]?key)\s*[:=]`
 - No stale strings: `Delivery Document`, `fewer API endpoints`, dotted step numbers, Lao spacing bug
 
 **Beware over-broad extraction.** Lifting a block by searching for a closing `</div>` string matched far too late once and swallowed a whole panel. Balance the tags instead of string-matching the close.
