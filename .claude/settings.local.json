@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(PYTHONIOENCODING=utf-8 python -c ' *)"
+    ]
+  },
+  "skillOverrides": {
+    "project-explainer": "name-only"
+  }
+}
