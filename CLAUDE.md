@@ -11,13 +11,13 @@ There is no build, no test suite, no dependency manifest. Verification is done b
 | File | Role |
 |---|---|
 | `cms-qa.html` | The deliverable — self-contained, ~640 KB, no external assets |
-| `CMS_Commercial_Bank_API_Manual.html` | **Authoritative source** for anything technical. Linked from the sidebar |
-| `Exim_Accounts_TEMPLATE.xlsx` | Intake template (step 2). Linked + rendered in panel B |
-| `business-template-exporter.xlsx` | Cleaned template (step 3). Linked + rendered in panel C |
-| `acdd-template.xlsx` | Special Product ACDD template. Linked + rendered in the ACDD panel |
-| `specail-acdd-import-checks.html` | Source for the ACDD import validation rules (note the typo in the filename). Not linked from the page |
+| `Attachment/CMS_Commercial_Bank_API_Manual.html` | **Authoritative source** for anything technical. Linked from the sidebar |
+| `Attachment/Exim_Accounts_TEMPLATE.xlsx` | Intake template (step 2). Linked + rendered in panel B |
+| `Attachment/business-template-exporter.xlsx` | Cleaned template (step 3). Linked + rendered in panel C |
+| `Attachment/acdd-template.xlsx` | Special Product ACDD template. Linked + rendered in the ACDD panel |
+| `Attachment/specail-acdd-import-checks.html` | Source for the ACDD import validation rules (note the typo in the filename). Not linked from the page |
 
-All five linked files must stay in the same folder — the sidebar hrefs are relative. They resolve when the page is opened from disk; **on the published artifact they will 404**, since only `cms-qa.html` is uploaded. If the artifact needs to work standalone, the templates would have to be embedded as data URIs.
+The source documents live in **`Attachment/`** beside `cms-qa.html`, and the sidebar hrefs point at `Attachment/<file>`. **Move the folder without the page (or the page without the folder) and every link breaks.** They resolve when the page is opened from disk; **on the published artifact they will 404**, since only `cms-qa.html` is uploaded. If the artifact needs to work standalone, the templates would have to be embedded as data URIs.
 
 ## Publishing
 
@@ -33,13 +33,13 @@ Self-contained by necessity: a strict CSP blocks external fonts, scripts and sty
 
 ## Source of truth
 
-`CMS_Commercial_Bank_API_Manual.html` — the *CMS Commercial Bank API Technical Handbook*, document #004, issued by BOL with AIDC Tech Co., Ltd — outranks this manual on every technical point. When the two disagree, the handbook is correct and the page gets corrected. (Earlier drafts referenced a `CMS Delivery Document - BOL.html`; that name is retired and all references were repointed.)
+`Attachment/CMS_Commercial_Bank_API_Manual.html` — the *CMS Commercial Bank API Technical Handbook*, document #004, issued by BOL with AIDC Tech Co., Ltd — outranks this manual on every technical point. When the two disagree, the handbook is correct and the page gets corrected. (Earlier drafts referenced a `CMS Delivery Document - BOL.html`; that name is retired and all references were repointed.)
 
 ### Reading the handbook programmatically
 
 It is a single-page app, not static HTML — grepping rendered text finds nothing. All content sits in one JSON array assigned to `SECTIONS` (22 sections, `intro` → `constraints`). Extract by finding `SECTIONS`, walking from the next `[` to its matching `]`, and `json.loads`-ing the slice. Every string is an `{"en": …, "lo": …}` pair, so **the handbook is also the authority on official Lao terminology** — check house wording against it before inventing a translation.
 
-`specail-acdd-import-checks.html` is plain static HTML; strip tags and read it directly.
+`Attachment/specail-acdd-import-checks.html` is plain static HTML; strip tags and read it directly.
 
 **Do not invent technical detail.** Where a source is silent, the answer stays generic and points at the handbook. Several answers deliberately say "refer to the API manual" — that is intended behaviour, not a gap to fill.
 
@@ -209,9 +209,9 @@ The rendered `<code class="cc">` chips are the **single source of truth** — th
 
 ## Special Product / ACDD import
 
-A Special Product is an export with no ordinary customs declaration to sync from ASYCUDA — electricity is the worked example. Its ACDD is loaded from `acdd-template.xlsx` instead. Tells: `Customs Office` = **BOL** with code **0**, own unit (`Volume (KWh)`), and **monthly** rows rather than one per shipment. ACDD ID format is `<TIN>-E<YYYY>-<MM>`. Verified arithmetic rule: **Total Invoice Amount = Volume × Unit Price** (holds on all six sample rows at 0.0695 USD/kWh).
+A Special Product is an export with no ordinary customs declaration to sync from ASYCUDA — electricity is the worked example. Its ACDD is loaded from `Attachment/acdd-template.xlsx` instead. Tells: `Customs Office` = **BOL** with code **0**, own unit (`Volume (KWh)`), and **monthly** rows rather than one per shipment. ACDD ID format is `<TIN>-E<YYYY>-<MM>`. Verified arithmetic rule: **Total Invoice Amount = Volume × Unit Price** (holds on all six sample rows at 0.0695 USD/kWh).
 
-Import validation, from `specail-acdd-import-checks.html`:
+Import validation, from `Attachment/specail-acdd-import-checks.html`:
 
 - **12 of 15 columns are enforced; 3 are never examined** — Product Name, Customs Office Code, Business Name go straight to the database. A declaration can be saved with a non-existent border code and the import reports success.
 - **All or nothing.** One bad cell blocks the whole file; there is no partial import.

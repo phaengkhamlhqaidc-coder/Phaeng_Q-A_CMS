@@ -12,14 +12,16 @@ removing the material listed below **and rewriting the history**.
 
 ## What makes it sensitive
 
+The source documents live in `Attachment/`; `cms-qa.html` renders identifiers from them.
+
 | File | Sensitive content |
 |---|---|
-| `CMS_Commercial_Bank_API_Manual.html` | Bank of the Lao PDR internal technical handbook, document #004 — every API endpoint, the authentication scheme, BOL contact email and telephone, and the vendor's name |
-| `specail-acdd-import-checks.html` | Internal implementation detail — source file paths, controller and component names, and line numbers across six files of the CMS codebase |
+| `Attachment/CMS_Commercial_Bank_API_Manual.html` | Bank of the Lao PDR internal technical handbook, document #004 — every API endpoint, the authentication scheme, BOL contact email and telephone, and the vendor's name |
+| `Attachment/specail-acdd-import-checks.html` | Internal implementation detail — source file paths, controller and component names, and line numbers across six files of the CMS codebase |
 | `cms-qa.html` | Renders real identifiers in its tables: business tax numbers, bank account numbers, an owner's national ID number, a business email address, named companies, database schema object names, and a local disk path |
-| `Exim_Accounts_TEMPLATE.xlsx` | Sample rows carrying real tax numbers, account numbers, CIF IDs and company names |
-| `business-template-exporter.xlsx` | A named company with its tax number, two bank account numbers, owner national ID and contact email |
-| `acdd-template.xlsx` | A named exporter with its tax number and six months of real invoice values |
+| `Attachment/Exim_Accounts_TEMPLATE.xlsx` | Sample rows carrying real tax numbers, account numbers, CIF IDs and company names |
+| `Attachment/business-template-exporter.xlsx` | A named company with its tax number, two bank account numbers, owner national ID and contact email |
+| `Attachment/acdd-template.xlsx` | A named exporter with its tax number and six months of real invoice values |
 
 The individual values are deliberately not repeated here — copying them into this
 file would defeat its purpose. Open the files themselves if you need to see them.
@@ -49,7 +51,7 @@ rewriting history:
 
 ```bash
 # example — remove one file from every commit
-git filter-repo --path CMS_Commercial_Bank_API_Manual.html --invert-paths
+git filter-repo --path Attachment/CMS_Commercial_Bank_API_Manual.html --invert-paths
 git push --force origin main
 ```
 
