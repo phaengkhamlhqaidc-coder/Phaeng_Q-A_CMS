@@ -10,14 +10,18 @@ There is no build, no test suite, no dependency manifest. Verification is done b
 
 | File | Role |
 |---|---|
-| `cms-qa.html` | The deliverable — self-contained, ~640 KB, no external assets |
-| `Attachment/CMS_Commercial_Bank_API_Manual.html` | **Authoritative source** for anything technical. Linked from the sidebar |
-| `Attachment/Exim_Accounts_TEMPLATE.xlsx` | Intake template (step 2). Linked + rendered in panel B |
-| `Attachment/business-template-exporter.xlsx` | Cleaned template (step 3). Linked + rendered in panel C |
-| `Attachment/acdd-template.xlsx` | Special Product ACDD template. Linked + rendered in the ACDD panel |
+| `cms-qa.html` | The deliverable — self-contained, ~785 KB, no external assets |
+| `Attachment/CMS_Commercial_Bank_API_Manual.html` | **Authoritative source** for anything technical. Reproduced in full inside the page as the `manual` panel |
+| `Attachment/Exim_Accounts_TEMPLATE.xlsx` | Intake template (step 2). Embedded as a data URI + rendered in panel B |
+| `Attachment/business-template-exporter.xlsx` | Cleaned template (step 3). Embedded as a data URI + rendered in panel C |
+| `Attachment/acdd-template.xlsx` | Special Product ACDD template. Embedded as a data URI + rendered in the ACDD panel |
 | `Attachment/specail-acdd-import-checks.html` | Source for the ACDD import validation rules (note the typo in the filename). Not linked from the page |
 
-The source documents live in **`Attachment/`** beside `cms-qa.html`, and the sidebar hrefs point at `Attachment/<file>`. **Move the folder without the page (or the page without the folder) and every link breaks.** They resolve when the page is opened from disk; **on the published artifact they will 404**, since only `cms-qa.html` is uploaded. If the artifact needs to work standalone, the templates would have to be embedded as data URIs.
+**`cms-qa.html` no longer depends on `Attachment/`** (2026-08-14). Nothing in the page opens a local file or a new tab: the handbook is rendered into the `manual` panel, and the three workbooks are embedded as `data:` URIs on `download="<name>"` links, byte-identical to the originals. `Attachment/` remains the *source* folder — edit a source there, then re-run the generator to push the change into the page. Note that in the **published artifact** the viewer sandbox blocks page-initiated downloads, so the workbook links only save a file when the page is opened from disk; the handbook panel works in both.
+
+The generator that did the embedding is not kept in the repo — it read `SECTIONS` out of the handbook, emitted the panel markup, and base64'd the workbooks. Recreate it from **Reading the handbook programmatically** below if the handbook is reissued.
+
+The only outward links left are the three government TIN-search sites in panel C, which correctly keep `target="_blank"`.
 
 ## Publishing
 
@@ -63,7 +67,7 @@ Documented endpoints: `POST /login`, `POST /tin`, `GET /cif-info`, `POST /cms-id
 
 A panel-switching single-page app — **not** a scrolling document. `<div class="app" data-lang="…">` wraps a sidebar and a content area; each category is a `<section class="panel" id="panel-…">` and only one carries `.active` at a time. JS at the foot of the file handles panel switching, hash routing (`#g` opens FDI directly), the language toggle, expand/collapse-all, the filter box, and the regime-code checker.
 
-Twelve panels, **122 Q&A pairs**:
+Thirteen panels, **122 Q&A pairs**:
 
 | Panel | Title | Q&A | Tables |
 |---|---|---|---|
@@ -79,8 +83,11 @@ Twelve panels, **122 Q&A pairs**:
 | `report` | Reporting — What Is Registered | 11 | 2 |
 | `terms` | Terms & Abbreviations | 0 | 1 |
 | `ref` | Quick Reference Table | 0 | 1 |
+| `manual` | API Manual — full text | 0 | 24 |
 
-A–G is the client's taxonomy — don't renumber. `overview`, `acdd`, `report`, `terms` and `ref` are additions and carry no letter.
+A–G is the client's taxonomy — don't renumber. `overview`, `acdd`, `report`, `terms`, `ref` and `manual` are additions and carry no letter.
+
+`manual` is a **verbatim rendering of the handbook**, not authored content: 22 `<details class="doc">` sections generated from `SECTIONS`, preceded by a `.docnav` index of 22 buttons. It is the one content panel with **no `.abbrbar`** — it uses the source's own terminology, and `terms` is one click away. Never hand-edit its prose; correct the handbook and regenerate.
 
 ## Q&A markup
 
@@ -103,6 +110,12 @@ Variants: `.qa.branch` (amber rail, one conditional path — **38 in use**), `.q
 
 Conditional branches are the load-bearing convention: where the workflow forks, each branch is its **own** Q&A, never several conditions merged into one sentence.
 
+### `details.doc` — the handbook sections
+
+The `manual` panel reuses the same accordion chrome through `details.doc`, which is bolted onto the `details.qa` rules by selector (`details.qa,\n details.doc { … }`). Its body is `.docbody`, not `.abody`, and it never splits into two columns — each block stacks English over Lao, because the tables and code samples inside cannot be duplicated per column. Block classes: `.dh` heading, `.dp` paragraph, `.dnote` note, `.dlist` / `.dflow` lists, `.dcode` sample, `.ddesc` the section's one-line summary. **Where a source string's `en` and `lo` are identical** (code, version numbers, endpoint names) the generator emits one untagged node instead of a pair — that is what keeps the two language counts even.
+
+The filter box and Expand-all cover both kinds: the JS selector is `details.qa, details.doc` in two places. Keep it that way.
+
 ## Writing standard
 
 The audience is **CB staff and managers/executives**, so every answer follows one rule:
@@ -115,7 +128,7 @@ Substitute jargon: "hit the API endpoint" → "send the request to the system"; 
 
 Because the page is **paged**, a reader can enter at any panel — so "explain on first use" has to mean *first use in that panel*. Two mechanisms:
 
-- **`.abbrbar`** — a strip at the top of all 10 content panels listing only the abbreviations that panel actually uses, with expansions. Generated by scanning each panel's English text; regenerate it if a panel gains a new abbreviation.
+- **`.abbrbar`** — a strip at the top of all 10 authored content panels (11 strips) listing only the abbreviations that panel actually uses, with expansions. Generated by scanning each panel's English text; regenerate it if a panel gains a new abbreviation. The `manual` panel is deliberately excluded — see above.
 - **The `terms` panel** — the full glossary, one sidebar click from anywhere. It used to sit inside panel A, where readers who never opened A could not find it.
 
 ## Flow diagrams
@@ -224,12 +237,14 @@ Import validation, from `Attachment/specail-acdd-import-checks.html`:
 
 There is no test runner; use a Python assertion script over the HTML. Every pass should check at minimum:
 
-- Tag balance for `details`, `section`, `div`, `table`, `tr`, `td`, `th`, `span`, `p`, `a`
-- `lang="en"` count == `lang="lo"` count, page-wide **and within every single `<details class="qa">`**
-- Every `data-panel` resolves to a `panel-*` id, and every panel is reachable from the sidebar
+- Tag balance for `details`, `section`, `div`, `table`, `tr`, `td`, `th`, `span`, `p`, `a`, `ul`, `ol`, `li`, `pre`, `nav`, `button`. Better still, run a stack-based `html.parser` pass over the whole file and assert zero mismatches and nothing left unclosed — it catches wrong *nesting*, which counting cannot
+- `lang="en"` count == `lang="lo"` count, page-wide **and within every single `<details class="qa">` and `<details class="doc">`**. Count the attribute on elements only — `<\w+[^>]*\blang="en"` — because the bare string also appears in ~30 CSS selectors and in JS template strings, which never pair. A naive `h.count('lang="lo"')` reports a false imbalance of 31
+- Every `data-panel` resolves to a `panel-*` id, and every panel is reachable from the sidebar; 13 panels
 - Exactly one `.panel.active`
-- 42 regime-code chips; 6 ACDD sample rows; 11 `.abbrbar` strips (one per content panel)
+- 42 regime-code chips; 6 ACDD sample rows; 11 `.abbrbar` strips (one per authored content panel)
+- 22 `details.doc` sections, 22 `.docnav` buttons, every `data-doc` resolving to one of them
 - `.tech` block count is even (en/lo pairs)
+- Nothing depends on `Attachment/`: no `href="Attachment/`, and no `target="_blank"` on a non-`http(s)` href. The three `data:` workbooks must base64-decode byte-identical to the files in `Attachment/`
 - No credentials or internal addresses. Scan for private-range IPs with `\b(?:10|127|192\.168|172\.(?:1[6-9]|2\d|3[01]))\.\d{1,3}\.\d{1,3}\b`, and for the UAT panel passwords — **do not paste the literal passwords into this file or any tracked file**; they live only in the operator's own notes. A generic sweep that catches most cases: `(?i)(pass(word)?|pwd|token|secret|api[_-]?key)\s*[:=]`
 - No stale strings: `Delivery Document`, `fewer API endpoints`, dotted step numbers, Lao spacing bug
 
@@ -245,6 +260,7 @@ Resolved; recorded so they are not re-opened:
 - The Track Transaction "reference number outside the tracked category" branch was once inferred. It now carries the real rule — check the regime code against the 42 non-tracked codes and Void directly if it matches (2026-08-11).
 - The FDI transaction fields table once had empty M/O and Type columns. Filled from the handbook (2026-08-12): `senderName` **M**, `originCountry` **M**, `bankNameOrigin` **O**, `bankAccountOrigin` **O**, `transactionDescription` **O** — all strings, the last three sourced from SWIFT.
 - "FDI has fewer API endpoints" was corrected to the one-API / `businessType` model (2026-08-12).
+- The page's dependency on `Attachment/` is gone (2026-08-14). The handbook became the `manual` panel and the workbooks became `data:` URIs, because staff opening `cms-qa.html` on their own machine had the manual link open a new tab onto a file they often did not have. Don't reintroduce a link to a local file.
 
 FDI approval/rejection criteria are intentionally left to the bank's own policy — the source defines the mechanism, not the decision rules.
 
