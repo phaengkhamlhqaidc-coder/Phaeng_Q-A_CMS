@@ -67,25 +67,40 @@ Documented endpoints: `POST /login`, `POST /tin`, `GET /cif-info`, `POST /cms-id
 
 A panel-switching single-page app — **not** a scrolling document. `<div class="app" data-lang="…">` wraps a sidebar and a content area; each category is a `<section class="panel" id="panel-…">` and only one carries `.active` at a time. JS at the foot of the file handles panel switching, hash routing (`#g` opens FDI directly), the language toggle, expand/collapse-all, the filter box, and the regime-code checker.
 
-Thirteen panels, **122 Q&A pairs**:
+Thirteen panels, **151 Q&A pairs**:
 
 | Panel | Title | Q&A | Tables |
 |---|---|---|---|
 | `overview` | Overview & Module Scope | 0 | 1 |
-| `a` | Getting Started / Documentation | 11 | 1 |
-| `b` | Data Preparation & Templates | 7 | 1 |
+| `a` | Getting Started / Documentation | 18 | 1 |
+| `b` | Data Preparation & Templates | 11 | 1 |
 | `c` | Data Cleaning & TIN Verification | 19 | 2 |
 | `d` | Registration in CMS (BOL Panel) | 10 | 0 |
 | `e` | Troubleshooting Failed Registrations | 19 | 2 |
-| `f` | Using the Exporter Module | 19 | 0 |
+| `f` | Using the Exporter Module | 28 | 0 |
 | `acdd` | Special Product — ACDD | 15 | 2 |
-| `g` | Using the FDI Module | 11 | 2 |
+| `g` | Using the FDI Module | 20 | 2 |
 | `report` | Reporting — What Is Registered | 11 | 2 |
 | `terms` | Terms & Abbreviations | 0 | 1 |
 | `ref` | Quick Reference Table | 0 | 1 |
 | `manual` | API Manual — full text | 0 | 24 |
 
 A–G is the client's taxonomy — don't renumber. `overview`, `acdd`, `report`, `terms`, `ref` and `manual` are additions and carry no letter.
+
+The sidebar splits those panels into **six `.navgroup` blocks**, ordered by *where the work happens* — the BOL/CB split the client asked for (2026-08-19):
+
+| Group heading | Panels |
+|---|---|
+| Start | `overview` |
+| Steps 1–3 · Prepare — CB side | `a` `b` `c` |
+| Step 4 · Register — BOL Panel | `d` `e` |
+| Step 5 · Operate — CB side | `f` `acdd` `g` `report` |
+| Reference | `terms` `ref` `manual` |
+| Templates | the three `data:` workbooks |
+
+The step numbers are the **Quick Reference table's**, not a second scheme — 1–3 = panels A/B/C, 4a/4b = D/E, 5a–5f = F/ACDD/G. Keep them in step with that table. Registration is the only BOL-side step, which is the point the grouping makes; `report` sits in the operate group because it is CB-side work, though it is a database query rather than CB Portal work — don't relabel that group after the portal.
+
+Group headings are the one part of the sidebar that used to be English-only; they are now bilingual like everything else, stacked EN over LO by `.navgroup > h2 [lang="en"], .navgroup > h2 [lang="lo"] { display: block }` with the Lao dropping `text-transform`/`letter-spacing`. Headings wrap rather than truncate — the sidebar is `17.5rem`, and a heading much longer than `Step 4 · Register — BOL Panel` will run to two lines.
 
 `manual` is a **verbatim rendering of the handbook**, not authored content: 22 `<details class="doc">` sections generated from `SECTIONS`, preceded by a `.docnav` index of 22 buttons. It is the one content panel with **no `.abbrbar`** — it uses the source's own terminology, and `terms` is one click away. Never hand-edit its prose; correct the handbook and regenerate.
 
@@ -106,7 +121,7 @@ Each entry is a `<details>` accordion. **This replaced an earlier `<article clas
 </details>
 ```
 
-Variants: `.qa.branch` (amber rail, one conditional path — **38 in use**), `.qa.caution` (a trap to avoid, not a fork — **6 in use**), plus `open` for the four entries that should start expanded. `.cond` labels the condition; `.caut` labels a caution.
+Variants: `.qa.branch` (amber rail, one conditional path — **49 in use**), `.qa.caution` (a trap to avoid, not a fork — **10 in use**), plus `open` for the four entries that should start expanded. `.cond` labels the condition; `.caut` labels a caution.
 
 Conditional branches are the load-bearing convention: where the workflow forks, each branch is its **own** Q&A, never several conditions merged into one sentence.
 
@@ -120,7 +135,7 @@ The filter box and Expand-all cover both kinds: the JS selector is `details.qa, 
 
 The audience is **CB staff and managers/executives**, so every answer follows one rule:
 
-**Plain business language first; technical detail second, inside `<span class="tech">`.** A manager reads the opening and stops; staff read on. 44 such blocks exist (22 answers × 2 languages). The label is `Detail` / `ລາຍລະອຽດ`.
+**Plain business language first; technical detail second, inside `<span class="tech">`.** A manager reads the opening and stops; staff read on. 66 such blocks exist (33 answers × 2 languages). The label is `Detail` / `ລາຍລະອຽດ`.
 
 Substitute jargon: "hit the API endpoint" → "send the request to the system"; "Base URL / Login URL" → "the two web addresses BOL needs to reach your system". Where a technical term must appear, gloss it — SWIFT as "the international bank-transfer network", JWT as "a secure sign-in pass".
 
@@ -129,7 +144,7 @@ Substitute jargon: "hit the API endpoint" → "send the request to the system"; 
 Because the page is **paged**, a reader can enter at any panel — so "explain on first use" has to mean *first use in that panel*. Two mechanisms:
 
 - **`.abbrbar`** — a strip at the top of all 10 authored content panels (11 strips) listing only the abbreviations that panel actually uses, with expansions. Generated by scanning each panel's English text; regenerate it if a panel gains a new abbreviation. The `manual` panel is deliberately excluded — see above.
-- **The `terms` panel** — the full glossary, one sidebar click from anywhere. It used to sit inside panel A, where readers who never opened A could not find it.
+- **The `terms` panel** — the full glossary (**20 entries**), one sidebar click from anywhere. It used to sit inside panel A, where readers who never opened A could not find it.
 
 ## Flow diagrams
 
@@ -260,6 +275,13 @@ Resolved; recorded so they are not re-opened:
 - The Track Transaction "reference number outside the tracked category" branch was once inferred. It now carries the real rule — check the regime code against the 42 non-tracked codes and Void directly if it matches (2026-08-11).
 - The FDI transaction fields table once had empty M/O and Type columns. Filled from the handbook (2026-08-12): `senderName` **M**, `originCountry` **M**, `bankNameOrigin` **O**, `bankAccountOrigin` **O**, `transactionDescription` **O** — all strings, the last three sourced from SWIFT.
 - "FDI has fewer API endpoints" was corrected to the one-API / `businessType` model (2026-08-12).
+- **Call direction** (2026-08-18). The Semi-API Flow table lists all seven steps as *CMS API Gateway → CB*, i.e. BOL's gateway calls
+  endpoints the bank exposes at its Base URL. The `Transaction Sync` section itself draws the request as *CB → CMS*. Both statements
+  are in the handbook; the page states the tension in a `.tech` block rather than picking a side, and tells the bank to confirm with
+  BOL. Do not "correct" one of them away.
+- **Two logins, not one** (2026-08-18). `Authorization (Login)` covers both directions: the bank signs in to the CB Gateway via
+  `POST /login`, and the MTS system signs in to *the bank's* API at the bank's own Login URL. CB has to build the second one, not
+  only consume the first.
 - The page's dependency on `Attachment/` is gone (2026-08-14). The handbook became the `manual` panel and the workbooks became `data:` URIs, because staff opening `cms-qa.html` on their own machine had the manual link open a new tab onto a file they often did not have. Don't reintroduce a link to a local file.
 
 FDI approval/rejection criteria are intentionally left to the bank's own policy — the source defines the mechanism, not the decision rules.
